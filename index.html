@@ -2,60 +2,39 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>내 AI 채팅봇</title>
+    <title>앱이쏘 AI 채팅</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
-        #chat-box { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #f9f9f9; }
-        .user { color: blue; font-weight: bold; }
-        .ai { color: green; margin-bottom: 10px; }
-        #loading { display: none; color: gray; }
+        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; }
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; background: #fafafa; }
+        input { width: 75%; padding: 10px; }
+        button { padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h2>🤖 나만의 Gemini AI 채팅</h2>
-    <div id="chat-box"></div>
-    <div id="loading">AI가 생각 중입니다...</div>
-    <input type="text" id="user-input" placeholder="질문을 입력하세요..." style="width: 80%; padding: 10px;">
-    <button onclick="askAI()" style="padding: 10px;">전송</button>
+    <h3>🤖 앱이쏘 AI 채팅봇</h3>
+    <div id="chat-box" id="chatBox"></div>
+    <input type="text" id="userInput" placeholder="질문을 입력하세요...">
+    <button onclick="ask()">전송</button>
 
     <script>
-        async function askAI() {
-            const input = document.getElementById('user-input');
-            const chatBox = document.getElementById('chat-box');
-            const loading = document.getElementById('loading');
+        async function ask() {
+            const input = document.getElementById('userInput');
+            const box = document.getElementById('chat-box');
             const prompt = input.value;
+            if(!prompt) return;
 
-            if (!prompt) return;
-
-            // 사용자 메시지 표시
-            chatBox.innerHTML += `<div class="user">나: ${prompt}</div>`;
+            box.innerHTML += `<div><b>나:</b> ${prompt}</div>`;
             input.value = '';
-            loading.style.display = 'block';
 
-            try {
-                // Vercel API 호출
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
-
-                const data = await response.text();
-                
-                // AI 답변 표시
-                chatBox.innerHTML += `<div class="ai">AI: ${data}</div>`;
-            } catch (error) {
-                chatBox.innerHTML += `<div class="ai" style="color:red;">오류가 발생했습니다.</div>`;
-            } finally {
-                loading.style.display = 'none';
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.text();
+            box.innerHTML += `<div style="color:green;"><b>AI:</b> ${data}</div>`;
+            box.scrollTop = box.scrollHeight;
         }
-
-        // 엔터키 지원
-        document.getElementById('user-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') askAI();
-        });
     </script>
 </body>
 </html>
