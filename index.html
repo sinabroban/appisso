@@ -2,45 +2,60 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>앱이쏘(Appisso) - 보험&기업 컨설팅</title>
+    <title>내 AI 채팅봇</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; max-width: 600px; margin: 0 auto; }
-        .container { border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: #f9f9f9; }
-        textarea { width: 100%; height: 100px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; padding: 10px; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #result { margin-top: 20px; white-space: pre-wrap; background: white; padding: 15px; border: 1px solid #eee; }
+        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
+        #chat-box { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #f9f9f9; }
+        .user { color: blue; font-weight: bold; }
+        .ai { color: green; margin-bottom: 10px; }
+        #loading { display: none; color: gray; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📑 앱이쏘 AI 컨설턴트</h2>
-        <p>보험 상품이나 기업 재무에 대해 궁금한 점을 적어주세요.</p>
-        <textarea id="prompt" placeholder="예: 50대 남성에게 유리한 암보험 담보를 요약해줘."></textarea>
-        <button onclick="askAI()">AI 분석 시작하기</button>
-        <div id="result">결과가 여기에 표시됩니다.</div>
-    </div>
+    <h2>🤖 나만의 Gemini AI 채팅</h2>
+    <div id="chat-box"></div>
+    <div id="loading">AI가 생각 중입니다...</div>
+    <input type="text" id="user-input" placeholder="질문을 입력하세요..." style="width: 80%; padding: 10px;">
+    <button onclick="askAI()" style="padding: 10px;">전송</button>
 
     <script>
         async function askAI() {
-            const prompt = document.getElementById('prompt').value;
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerText = "분석 중입니다... 잠시만 기다려주세요.";
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const loading = document.getElementById('loading');
+            const prompt = input.value;
+
+            if (!prompt) return;
+
+            // 사용자 메시지 표시
+            chatBox.innerHTML += `<div class="user">나: ${prompt}</div>`;
+            input.value = '';
+            loading.style.display = 'block';
 
             try {
-                // 우리가 만든 api/chat.js 통로로 요청을 보냅니다.
+                // Vercel API 호출
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt: prompt })
                 });
 
-                const data = await response.json();
-                resultDiv.innerText = data.text || data.error;
+                const data = await response.text();
+                
+                // AI 답변 표시
+                chatBox.innerHTML += `<div class="ai">AI: ${data}</div>`;
             } catch (error) {
-                resultDiv.innerText = "오류가 발생했습니다. 다시 시도해주세요.";
+                chatBox.innerHTML += `<div class="ai" style="color:red;">오류가 발생했습니다.</div>`;
+            } finally {
+                loading.style.display = 'none';
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
+
+        // 엔터키 지원
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') askAI();
+        });
     </script>
 </body>
 </html>
