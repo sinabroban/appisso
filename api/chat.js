@@ -1,26 +1,27 @@
-const { GoogleGenAI } = require("@google/genai"); // 클래스 이름을 GoogleGenAI로 수정
+const { GoogleGenAI } = require("@google/genai");
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: "Vercel 설정에서 API 키를 확인하세요." });
+  if (!apiKey) return res.status(500).json({ error: "API 키를 확인하세요." });
 
   try {
-    // 1. GoogleGenAI 클래스로 클라이언트 생성
-    const ai = new GoogleGenAI({ apiKey }); 
+    // 1. 정식 프로덕션 버전(v1)을 사용하도록 설정
+    const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1' }); 
 
     const { prompt } = req.body;
 
-    // 2. Gemini 3.0 모델 호출 (2026년 최신 표준 모델명)
+    // 2. 모델 ID를 'gemini-3.0-flash'로 정확히 지정
+    // 3.0 버전은 '3'이 아니라 '3.0'을 붙여야 인식되는 경우가 많습니다.
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash",
-      contents: prompt, // 새 SDK에서는 prompt를 contents로 바로 전달합니다
+      model: "gemini-3.0-flash", 
+      contents: [{ role: 'user', parts: [{ text: prompt }] }] 
     });
 
-    // 3. 답변 텍스트만 추출해서 전송
     res.status(200).send(response.text); 
   } catch (error) {
-    res.status(500).json({ error: "Gemini 3 호출 실패: " + error.message });
+    // 에러 발생 시 상세 메시지를 더 정확히 보여주도록 수정
+    res.status(500).json({ error: "Gemini 3 연결 실패: " + error.message });
   }
 };
