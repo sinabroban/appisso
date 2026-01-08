@@ -10,9 +10,9 @@ module.exports = async (req, res) => {
     const ai = new GoogleGenAI({ apiKey }); 
     const { prompt } = req.body;
 
-    // 오빠가 찍어준 사진(스튜디오.png)에서 확인한 'Gemini 3 Flash'를 호출합니다.
+    // 무료 등급에서 가장 확실하게 대답하는 표준 모델입니다.
     const result = await ai.models.generateContent({
-      model: "gemini-3-flash", 
+      model: "gemini-1.5-flash", 
       contents: [{ role: 'user', parts: [{ text: prompt }] }] 
     });
 
