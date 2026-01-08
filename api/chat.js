@@ -1,25 +1,28 @@
 const { GoogleGenAI } = require("@google/genai");
 
 module.exports = async (req, res) => {
-  // 1. 보안 및 방식 체크
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+  // 1. Vercel 설정에서 키를 가져옵니다.
   const apiKey = process.env.GEMINI_API_KEY;
 
+  // 2. 만약 키가 없으면 오빠한테 어디가 문제인지 한글로 알려줍니다.
+  if (!apiKey) {
+    return res.status(500).json({ error: "버셀(Vercel) 설정에 GEMINI_API_KEY가 등록되지 않았습니다." });
+  }
+
   try {
-    // 2. 오빠가 사진으로 보여준 최신 SDK 연결
     const ai = new GoogleGenAI({ apiKey }); 
     const { prompt } = req.body;
 
-    // 3. 스튜디오 사진에 있던 'Gemini 3 Flash' 모델로 바로 연결합니다
+    // 3. 사진(스튜디오.png)에서 확인한 2026년 최신 모델 이름입니다!
     const response = await ai.models.generateContent({
       model: "gemini-3-flash", 
       contents: [{ role: 'user', parts: [{ text: prompt }] }] 
     });
 
-    // 4. 결과값만 깔끔하게 전달
     res.status(200).send(response.text); 
   } catch (error) {
-    // 혹시라도 에러가 나면 이유를 오빠한테 한글로 알려줍니다
-    res.status(500).json({ error: "앱이쏘 연결 실패: " + error.message });
+    res.status(500).json({ error: "연결 실패: " + error.message });
   }
 };
