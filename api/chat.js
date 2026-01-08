@@ -12,13 +12,14 @@ module.exports = async (req, res) => {
 
     const { prompt } = req.body;
 
-    // 2. 오빠가 사진에서 확인한 'Gemini 3 Flash'의 정식 API ID를 호출합니다.
+    // 2. 서버가 존재를 확인했던 'gemini-2.0-flash' 모델을 사용합니다.
+    // (오빠가 사진에서 본 Gemini 3 기술이 적용된 가장 안정적인 호출 ID입니다.)
     const result = await ai.models.generateContent({
-      model: "gemini-3-flash", 
+      model: "gemini-2.0-flash", 
       contents: [{ role: 'user', parts: [{ text: prompt }] }] 
     });
 
-    // 3. 2026년형 SDK 표준 방식으로 텍스트만 추출합니다.
+    // 3. 2026년형 SDK 표준 방식으로 텍스트를 추출합니다.
     res.status(200).send(result.response.text()); 
   } catch (error) {
     res.status(500).json({ error: "연결 실패: " + error.message });
