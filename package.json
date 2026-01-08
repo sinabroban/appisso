@@ -1,7 +1,7 @@
 {
-  "name": "appisso-2026",
+  "name": "appisso",
   "version": "1.0.0",
   "dependencies": {
-    "@google/genai": "^1.0.0"
+    "@google/generative-ai": "^0.21.0"
   }
 }
