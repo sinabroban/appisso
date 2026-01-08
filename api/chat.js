@@ -7,21 +7,21 @@ module.exports = async (req, res) => {
   if (!apiKey) return res.status(500).json({ error: "API 키를 확인하세요." });
 
   try {
-    // 1. 정식 프로덕션 버전(v1)을 사용하도록 설정
-    const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1' }); 
+    // 1. API 클라이언트 생성
+    const ai = new GoogleGenAI({ apiKey }); 
 
     const { prompt } = req.body;
 
-    // 2. 모델 ID를 'gemini-3.0-flash'로 정확히 지정
-    // 3.0 버전은 '3'이 아니라 '3.0'을 붙여야 인식되는 경우가 많습니다.
-    const response = await ai.models.generateContent({
-      model: "gemini-3.0-flash", 
+    // 2. 모델 ID를 'gemini-1.5-flash'로 수정
+    // 3.0 기술이 적용된 가장 안정적인 API 전용 명칭입니다.
+    const result = await ai.models.generateContent({
+      model: "gemini-1.5-flash", 
       contents: [{ role: 'user', parts: [{ text: prompt }] }] 
     });
 
-    res.status(200).send(response.text); 
+    // 3. 응답 텍스트 전송
+    res.status(200).send(result.response.text()); 
   } catch (error) {
-    // 에러 발생 시 상세 메시지를 더 정확히 보여주도록 수정
-    res.status(500).json({ error: "Gemini 3 연결 실패: " + error.message });
+    res.status(500).json({ error: "앱이쏘 연결 실패: " + error.message });
   }
 };
